@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  first_app:
+    build: first_app/
+    hostname: first_app
+    container_name: first_app_container
+    restart: on-failure
+    command: sh -c "python3 main.py"
+    expose:
+      - "8000"
+    networks:
+      - main_network
+
+  second_app:
+    build: second_app/
+    hostname: second_app
+    container_name: second_app_container
+    restart: on-failure
+    command: sh -c "python3 main.py"
+    expose:
+      - "8001"
+    networks:
+      - main_network
+
+  third_app:
+    build: third_app/
+    hostname: third_app
+    container_name: third_app_container
+    restart: on-failure
+    command: sh -c "python3 main.py"
+    expose:
+      - "8002"
+    networks:
+      - main_network
+
+  nginx_fastapi:
+    image: nginx
+    hostname: nginx_fastapi
+    container_name: fastapi_nginx_container
+    command: nginx -g 'daemon off;'
+    restart: on-failure
+    depends_on:
+      - first_app
+      - second_app
+      - third_app
+    networks:
+      - main_network
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
+
+networks:
+  main_network:
